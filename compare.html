@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Comparison | F1 Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">F1 Dashboard</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="standings.html">Standings</a>
+      <a href="results.html">Results</a>
+      <a href="constructors.html">Constructors</a>
+      <a href="schedule.html">Schedule</a>
+      <a class="active" href="compare.html">Compare</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Analysis</p>
+        <h1 class="hero-title">Head-to-Head</h1>
+        <p class="hero-subtitle">Select two drivers to compare their 2026 season stats.</p>
+      </div>
+    </section>
+
+    <section class="standings-section">
+      <div class="card">
+        <div class="compare-selectors">
+          <div class="selector-card">
+            <label class="selector-label">Driver 1</label>
+            <select id="driver1-select" class="driver-select">
+              <option value="">Select driver...</option>
+            </select>
+          </div>
+
+          <div class="vs-badge">VS</div>
+
+          <div class="selector-card">
+            <label class="selector-label">Driver 2</label>
+            <select id="driver2-select" class="driver-select">
+              <option value="">Select driver...</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="comparison-loading" class="loading-state hidden">Loading comparison...</div>
+        <div id="comparison-error" class="error-state hidden"></div>
+        <div id="comparison-card" class="compare-card hidden">
+          <div class="compare-header">
+            <div class="compare-driver">
+              <div class="compare-driver-name" id="driver1-name"></div>
+              <div class="compare-driver-team" id="driver1-team"></div>
+            </div>
+            <div class="compare-driver right">
+              <div class="compare-driver-name" id="driver2-name"></div>
+              <div class="compare-driver-team" id="driver2-team"></div>
+            </div>
+          </div>
+
+          <div id="stats-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    let allDrivers = [];
+
+    async function initializePage() {
+      try {
+        allDrivers = await getAllDrivers();
+        populateDriverSelects();
+      } catch (error) {
+        console.error('Failed to load drivers:', error);
+      }
+    }
+
+    function populateDriverSelects() {
+      const select1 = document.getElementById('driver1-select');
+      const select2 = document.getElementById('driver2-select');
+
+      const options = allDrivers.map(driver => {
+        const fullName = `${driver.Driver.givenName} ${driver.Driver.familyName}`;
+        return `<option value="${driver.Driver.driverId}">${fullName}</option>`;
+      }).join('');
+
+      select1.innerHTML += options;
+      select2.innerHTML += options;
+
+      select1.addEventListener('change', checkAndLoadComparison);
+      select2.addEventListener('change', checkAndLoadComparison);
+    }
+
+    function checkAndLoadComparison() {
+      const driver1Id = document.getElementById('driver1-select').value;
+      const driver2Id = document.getElementById('driver2-select').value;
+
+      if (driver1Id && driver2Id && driver1Id !== driver2Id) {
+        loadComparison(driver1Id, driver2Id);
+      } else {
+        document.getElementById('comparison-card').classList.add('hidden');
+        document.getElementById('comparison-loading').classList.add('hidden');
+        document.getElementById('comparison-error').classList.add('hidden');
+      }
+    }
+
+    async function loadComparison(driver1Id, driver2Id) {
+      const loading = document.getElementById('comparison-loading');
+      const error = document.getElementById('comparison-error');
+      const card = document.getElementById('comparison-card');
+
+      loading.classList.remove('hidden');
+      error.classList.add('hidden');
+      card.classList.add('hidden');
+
+      try {
+        const driver1Data = allDrivers.find(d => d.Driver.driverId === driver1Id);
+        const driver2Data = allDrivers.find(d => d.Driver.driverId === driver2Id);
+
+        const results1 = await getDriverSeasonResults(driver1Id);
+        const results2 = await getDriverSeasonResults(driver2Id);
+
+        const stats1 = calculateStats(results1, driver1Data);
+        const stats2 = calculateStats(results2, driver2Data);
+
+        displayComparison(driver1Data, driver2Data, stats1, stats2);
+
+        loading.classList.add('hidden');
+        card.classList.remove('hidden');
+      } catch (err) {
+        loading.classList.add('hidden');
+        error.textContent = 'Failed to load comparison. Please try again.';
+        error.classList.remove('hidden');
+        console.error('Comparison error:', err);
+      }
+    }
+
+    function calculateStats(results, driverData) {
+      let wins = 0;
+      let podiums = 0;
+      let fastestLaps = 0;
+
+      results.forEach(race => {
+        if (race.Results && race.Results.length > 0) {
+          race.Results.forEach(result => {
+            if (result.position === '1') wins++;
+            if (['1', '2', '3'].includes(result.position)) podiums++;
+            if (result.FastestLap && result.FastestLap.rank === '1') fastestLaps++;
+          });
+        }
+      });
+
+      return {
+        position: driverData.position,
+        points: driverData.points,
+        wins: wins,
+        podiums: podiums,
+        fastestLaps: fastestLaps
+      };
+    }
+
+    function displayComparison(driver1Data, driver2Data, stats1, stats2) {
+      document.getElementById('driver1-name').textContent = `${driver1Data.Driver.givenName} ${driver1Data.Driver.familyName}`;
+      document.getElementById('driver1-team').textContent = driver1Data.Constructors[0].name;
+      document.getElementById('driver2-name').textContent = `${driver2Data.Driver.givenName} ${driver2Data.Driver.familyName}`;
+      document.getElementById('driver2-team').textContent = driver2Data.Constructors[0].name;
+
+      const team1Color = getTeamColor(driver1Data.Constructors[0].name);
+      const team2Color = getTeamColor(driver2Data.Constructors[0].name);
+
+      const statsList = document.getElementById('stats-list');
+      statsList.innerHTML = '';
+
+      const statCategories = [
+        { label: 'Position', key: 'position', inverse: true },
+        { label: 'Points', key: 'points' },
+        { label: 'Wins', key: 'wins' },
+        { label: 'Podiums', key: 'podiums' },
+        { label: 'Fastest Laps', key: 'fastestLaps' }
+      ];
+
+      statCategories.forEach(stat => {
+        const val1 = parseInt(stats1[stat.key]);
+        const val2 = parseInt(stats2[stat.key]);
+        
+        let winner = null;
+        if (stat.inverse) {
+          winner = val1 < val2 ? 'driver1' : val2 < val1 ? 'driver2' : null;
+        } else {
+          winner = val1 > val2 ? 'driver1' : val2 > val1 ? 'driver2' : null;
+        }
+
+        const maxVal = Math.max(val1, val2) || 1;
+        const width1 = (val1 / maxVal) * 100;
+        const width2 = (val2 / maxVal) * 100;
+
+        const barColor1 = winner === 'driver1' ? team1Color : 'rgba(255,255,255,0.1)';
+        const barColor2 = winner === 'driver2' ? team2Color : 'rgba(255,255,255,0.1)';
+
+        const row = document.createElement('div');
+        row.classList.add('stat-row');
+        row.innerHTML = `
+          <div class="stat-val-left">${val1}</div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar-left" style="width: ${width1}%; background: ${barColor1};"></div>
+            <span class="stat-name">${stat.label}</span>
+            <div class="stat-bar-right" style="width: ${width2}%; background: ${barColor2};"></div>
+          </div>
+          <div class="stat-val-right">${val2}</div>
+        `;
+        statsList.appendChild(row);
+      });
+    }
+
+    initializePage();
+  </script>
+</body>
+</html>

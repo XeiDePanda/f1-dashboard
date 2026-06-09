@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Race Results | F1 Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">F1 Dashboard</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="standings.html">Standings</a>
+      <a class="active" href="results.html">Results</a>
+      <a href="constructors.html">Constructors</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="compare.html">Compare</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Results</p>
+        <h1 class="hero-title">Race Results</h1>
+        <p class="hero-subtitle">Full results from the most recent F1 race of the season.</p>
+      </div>
+      <div class="card hero-card">
+        <p class="sm-label">Event summary</p>
+        <p class="hero-season-note">The full finishing order is refreshed from live race data.</p>
+        <div class="button-group">
+          <button id="refresh-results" class="refresh-btn">Refresh</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="standings-section">
+      <div class="card">
+        <div id="race-header" class="race-header hidden">
+          <h2 id="race-title" class="race-title"></h2>
+          <p id="race-info" class="race-info"></p>
+        </div>
+        <div id="results-container">
+          <p class="loading-text">Loading race results…</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    async function loadResults() {
+      const container = document.getElementById('results-container');
+      const raceHeader = document.getElementById('race-header');
+
+      try {
+        const race = await getLastRaceResults();
+
+        // Set race title and info
+        document.getElementById('race-title').textContent = race.raceName;
+        document.getElementById('race-info').textContent = `${race.Circuit.circuitName} · ${new Date(race.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+        raceHeader.classList.remove('hidden');
+
+        // Clear loading
+        container.innerHTML = '';
+        const topPoints = race.Results[0] ? parseFloat(race.Results[0].points) : 0;
+
+        // Render all results
+        race.Results.forEach((result) => {
+          const positionClass = result.position === '1'
+            ? 'pos-gold'
+            : result.position === '2'
+              ? 'pos-silver'
+              : result.position === '3'
+                ? 'pos-bronze'
+                : '';
+          const pointsPercent = topPoints ? Math.round((parseFloat(result.points) / topPoints) * 100) : 0;
+
+          const card = document.createElement('div');
+          card.classList.add('standing-card');
+
+          const teamName = result.Constructor.name;
+          const teamColor = getTeamColor(teamName);
+          card.style.borderLeft = `4px solid ${teamColor}`;
+
+          const timeOrStatus = result.Time ? result.Time.time : result.status;
+          const fastestLap = result.FastestLap ? `Fastest lap ${result.FastestLap.Time.time}` : '';
+
+          card.innerHTML = `
+            <span class="position ${positionClass}">${result.position}</span>
+            <div class="driver-info">
+              <span class="driver-name">${result.Driver.givenName} ${result.Driver.familyName}</span>
+              <span class="team-name">${teamName}</span>
+              <div class="points-bar-wrap"><div class="points-bar" style="width: ${pointsPercent}%;"></div></div>
+            </div>
+            <div class="result-right">
+              <span class="points">${result.points} PTS</span>
+              <span class="result-time">${timeOrStatus}</span>
+              ${fastestLap ? `<span class="fastest-lap">${fastestLap}</span>` : ''}
+            </div>
+          `;
+
+          const posEl = card.querySelector('.position');
+          if (posEl) {
+            posEl.style.background = `${teamColor}22`;
+            posEl.style.color = teamColor;
+          }
+
+          const bar = card.querySelector('.points-bar');
+          if (bar) bar.style.background = teamColor;
+
+          container.appendChild(card);
+        });
+
+      } catch (error) {
+        container.innerHTML = '<p class="error-text">Failed to load race results. Please try again.</p>';
+        console.error(error);
+      }
+    }
+
+    loadResults();
+    document.getElementById('refresh-results').addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>

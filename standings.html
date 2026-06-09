@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Standings | F1 Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">F1 Dashboard</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="active" href="standings.html">Standings</a>
+      <a href="results.html">Results</a>
+      <a href="constructors.html">Constructors</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="compare.html">Compare</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Standings</p>
+        <h1 class="hero-title">Driver Standings</h1>
+        <p class="hero-subtitle">Review the current driver rankings for the active season, sourced from the live F1 API.</p>
+      </div>
+      <div class="card hero-card">
+        <p class="sm-label">Standings overview</p>
+        <p class="hero-season-note">Scores update when the page loads.</p>
+        <div class="button-group">
+          <button id="refresh-standings" class="refresh-btn">Refresh</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="standings-section">
+      <div class="card">
+        <div id="standings-loading" class="loading-state">Loading driver standings...</div>
+        <div id="standings-error" class="error-state hidden"></div>
+        <div id="standings-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    async function loadStandings() {
+      const loading = document.getElementById('standings-loading');
+      const error = document.getElementById('standings-error');
+      const list = document.getElementById('standings-list');
+      try {
+        const standings = await getDriverStandings();
+        const topPoints = standings[0] ? parseFloat(standings[0].points) : 0;
+        list.innerHTML = '';
+
+        standings.forEach((entry) => {
+          const positionClass = entry.position === '1'
+            ? 'pos-gold'
+            : entry.position === '2'
+              ? 'pos-silver'
+              : entry.position === '3'
+                ? 'pos-bronze'
+                : '';
+          const pointsPercent = topPoints ? Math.round((parseFloat(entry.points) / topPoints) * 100) : 0;
+
+          const card = document.createElement('div');
+          card.classList.add('standing-card');
+
+          const teamName = entry.Constructors?.[0]?.name || 'Unknown team';
+          const teamColor = getTeamColor(teamName);
+          card.style.borderLeft = `4px solid ${teamColor}`;
+          card.innerHTML = `
+            <span class="position ${positionClass}">${entry.position}</span>
+            <div class="driver-info">
+              <span class="driver-name">${entry.Driver.givenName} ${entry.Driver.familyName}</span>
+              <span class="team-name">${teamName}</span>
+              <div class="points-bar-wrap"><div class="points-bar" style="width: ${pointsPercent}%;"></div></div>
+            </div>
+            <span class="points">${entry.points} PTS</span>
+          `;
+
+          const posEl = card.querySelector('.position');
+          if (posEl) {
+            posEl.style.background = `${teamColor}22`;
+            posEl.style.color = teamColor;
+          }
+
+          const bar = card.querySelector('.points-bar');
+          if (bar) bar.style.background = teamColor;
+
+          list.appendChild(card);
+        });
+
+        loading.classList.add('hidden');
+        error.classList.add('hidden');
+      } catch (error) {
+        list.innerHTML = '';
+        loading.classList.add('hidden');
+        error.textContent = 'Failed to load standings. Please try again.';
+        error.classList.remove('hidden');
+        console.error(error);
+      }
+    }
+
+    loadStandings();
+    document.getElementById('refresh-standings').addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>

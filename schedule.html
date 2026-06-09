@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Race Schedule | F1 Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">F1 Dashboard</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="standings.html">Standings</a>
+      <a href="results.html">Results</a>
+      <a href="constructors.html">Constructors</a>
+      <a class="active" href="schedule.html">Schedule</a>
+      <a href="compare.html">Compare</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Calendar</p>
+        <h1 class="hero-title">Race Schedule</h1>
+        <p class="hero-subtitle">Browse all races for the 2026 F1 season. Completed races are marked in green, upcoming races in red.</p>
+      </div>
+      <div class="card hero-card">
+        <p class="sm-label">Season overview</p>
+        <p class="hero-season-note">24 races scheduled for the season.</p>
+        <div class="button-group">
+          <button id="refresh-schedule" class="refresh-btn">Refresh</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="standings-section">
+      <div id="schedule-loading" class="loading-state">Loading race schedule...</div>
+      <div id="schedule-error" class="error-state hidden"></div>
+      <div id="schedule-grid" class="schedule-grid hidden"></div>
+    </section>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    async function loadSchedule() {
+      const loading = document.getElementById('schedule-loading');
+      const error = document.getElementById('schedule-error');
+      const grid = document.getElementById('schedule-grid');
+
+      const flags = {
+        'Australia': '🇦🇺', 'China': '🇨🇳', 'Japan': '🇯🇵', 'Bahrain': '🇧🇭',
+        'USA': '🇺🇸', 'Italy': '🇮🇹', 'Monaco': '🇲🇨', 'Canada': '🇨🇦',
+        'Spain': '🇪🇸', 'Austria': '🇦🇹', 'UK': '🇬🇧', 'Hungary': '🇭🇺',
+        'Belgium': '🇧🇪', 'Netherlands': '🇳🇱', 'Singapore': '🇸🇬',
+        'Mexico': '🇲🇽', 'Brazil': '🇧🇷', 'UAE': '🇦🇪', 'Qatar': '🇶🇦',
+        'Saudi Arabia': '🇸🇦', 'Azerbaijan': '🇦🇿', 'France': '🇫🇷',
+        'Germany': '🇩🇪', 'Portugal': '🇵🇹'
+      };
+
+      try {
+        const races = await getRaceSchedule();
+        console.log('Race schedule response:', races);
+
+        if (!Array.isArray(races) || races.length === 0) {
+          throw new Error('No races available.');
+        }
+
+        const now = new Date();
+        let nextRaceIndex = -1;
+
+        grid.innerHTML = '';
+
+        races.forEach((race, index) => {
+          const raceDate = new Date(race.date + 'T00:00:00Z');
+          const isCompleted = raceDate < now;
+          const isNextRace = !isCompleted && nextRaceIndex === -1;
+
+          if (isNextRace) {
+            nextRaceIndex = index;
+          }
+
+          const badgeClass = isCompleted ? 'badge-completed' : 'badge-upcoming';
+          const badgeText = isCompleted ? 'Completed' : 'Upcoming';
+          const cardClass = isNextRace ? 'next-race' : '';
+
+          const card = document.createElement('div');
+          card.classList.add('race-card');
+          if (cardClass) {
+            card.classList.add(cardClass);
+          }
+
+          const location = race.Circuit.Location;
+          const locality = location.locality || 'TBA';
+          const country = location.country || 'TBA';
+          const flag = flags[country] || '🏁';
+
+          const imgUrl = getCircuitImage(race.Circuit.circuitName);
+          let nextRaceHtml = '';
+          if (isNextRace) {
+            nextRaceHtml = '<span class="next-race-label">Next Race</span>';
+          }
+
+          card.innerHTML = `
+            ${nextRaceHtml}
+            <p class="race-round">Round ${race.round}</p>
+            <h3 class="race-card-name">${race.raceName}</h3>
+            <p class="race-circuit">${race.Circuit.circuitName}</p>
+            <p class="race-location">${flag} ${locality}, ${country}</p>
+            <p class="race-card-date">${new Date(race.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          `;
+
+          if (imgUrl) {
+            const mapDiv = document.createElement('div');
+            mapDiv.classList.add('circuit-map');
+            const img = document.createElement('img');
+            img.src = imgUrl;
+            img.alt = race.Circuit.circuitName;
+            img.onerror = () => { mapDiv.style.display = 'none'; };
+            mapDiv.appendChild(img);
+            card.insertBefore(mapDiv, card.firstChild);
+          }
+
+          grid.appendChild(card);
+        });
+
+        loading.classList.add('hidden');
+        error.classList.add('hidden');
+        grid.classList.remove('hidden');
+      } catch (err) {
+        loading.classList.add('hidden');
+        grid.classList.add('hidden');
+        error.textContent = 'Failed to load race schedule. Please try again.';
+        error.classList.remove('hidden');
+        console.error('Schedule fetch error:', err);
+      }
+    }
+
+    loadSchedule();
+    document.getElementById('refresh-schedule').addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>
