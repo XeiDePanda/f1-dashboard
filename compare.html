@@ -85,7 +85,13 @@
       const select1 = document.getElementById('driver1-select');
       const select2 = document.getElementById('driver2-select');
 
-      const options = allDrivers.map(driver => {
+      const sortedDrivers = [...allDrivers].sort((a, b) => {
+        const nameA = `${a.Driver.givenName} ${a.Driver.familyName}`.toLowerCase();
+        const nameB = `${b.Driver.givenName} ${b.Driver.familyName}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      const options = sortedDrivers.map(driver => {
         const fullName = `${driver.Driver.givenName} ${driver.Driver.familyName}`;
         return `<option value="${driver.Driver.driverId}">${fullName}</option>`;
       }).join('');
