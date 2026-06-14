@@ -98,139 +98,179 @@ main {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.hero--standings {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: flex-start;
-  gap: 0.85rem;
-}
-
-.hero-copy {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.hero-actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    margin-top: 0.25rem;
-  }
-
-  .hero--standings .hero-copy,
-  .hero--standings .hero-actions,
-  .hero--section .hero-copy,
-  .hero--section .hero-actions {
-    width: 100%;
-  }
-
-  .hero-meta {
-    color: var(--muted);
-    font-size: 0.82rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin: 0;
-  }
-.eyebrow,
-.sm-label {
-  display: inline-block;
-  margin-bottom: 0.75rem;
-  color: var(--accent);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-}
-
 .hero-title {
-  margin: 0;
-  font-size: clamp(1.9rem, 3vw, 2.8rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-}
-
-.hero-subtitle,
-.hero-season-note {
-  margin: 1rem 0 0;
-  max-width: 58rem;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-.card {
-  padding: 1.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 18px 60px rgba(0,0,0,0.18);
-}
-
-.hero-card {
-  display: grid;
-  gap: 1rem;
-  padding: 1.5rem 1.25rem;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-}
-
-.hero-card .button-group {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
+  font-weight: 800;
 }
 
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 1rem 1.2rem;
-}
-
-.stat-card:nth-child(odd) {
-  background: rgba(255,255,255,0.01);
-}
-
-.stat-label {
-  font-size: 11px;
-  color: #A2A2B8;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 0 0 6px;
-}
-
-.stat-val {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 2px;
-}
-
-.stat-sub {
-  font-size: 0.8rem;
-  color: #A2A2B8;
-  margin: 0;
-}
-
-.hero-season {
-  margin: 0.75rem 0 0;
-  font-size: 3rem;
-  font-weight: 800;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
 }
 
 .cards-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0 0 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .race-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 1.4rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: stretch;
+    gap: 1rem;
+    min-height: 220px;
+    transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .race-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 35%);
+    pointer-events: none;
+  }
+
+  .race-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(225,6,0,0.35);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+  }
+
+  .race-card-content {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+    z-index: 1;
+  }
+
+  .circuit-map {
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.04);
+    opacity: 0.55;
+    transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+  }
+
+  .race-card:hover .circuit-map {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .race-card.next-race {
+    background: radial-gradient(circle at top left, rgba(225,6,0,0.15), rgba(255,255,255,0.02) 30%, rgba(16,16,24,0.95));
+    border-color: rgba(255,255,255,0.12);
+  }
+
+  .race-card.next-race::before {
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%);
+  }
+
+  .race-card.next-race .next-race-label {
+    background: rgba(255,255,255,0.14);
+    color: #F3F7FF;
+  }
+
+  .circuit-map img {
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .next-race-label {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #E10600;
+    background: rgba(225,6,0,0.12);
+    padding: 0.22rem 0.7rem;
+    border-radius: 999px;
+    margin-bottom: 0.55rem;
+    width: fit-content;
+    z-index: 1;
+  }
+
+  .race-round {
+    font-size: 0.72rem;
+    color: #A2A2B8;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+  }
+
+  .race-card-name {
+    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0.15rem 0;
+    line-height: 1.05;
+  }
+
+  .race-circuit {
+    font-size: 0.82rem;
+    color: #A2A2B8;
+    margin-top: 0.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .race-location {
+    font-size: 0.9rem;
+    color: #ffffff;
+    margin-top: 0.35rem;
+  }
+
+  .race-card-date {
+    font-size: 0.92rem;
+    color: #ffffff;
+    margin-top: 0.7rem;
+    font-weight: 600;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.75rem;
+    border-radius: 999px;
+    margin-top: 0.55rem;
+    width: fit-content;
+    z-index: 1;
+  }
+
+  .badge-completed {
+    background: rgba(39,80,10,0.25);
+    color: #97C459;
+    border: 0.5px solid rgba(151,196,89,0.3);
+  }
+
+  .badge-upcoming {
+    background: rgba(255,255,255,0.08);
+    color: #A2A2B8;
+  }
 .card-header {
   display: flex;
   flex-direction: column;
@@ -239,7 +279,8 @@ main {
 
 .card h2 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.28rem;
+  font-weight: 800;
 }
 
 .muted-text,
@@ -728,7 +769,7 @@ main {
 
   .schedule-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 0 0 3rem;
     max-width: 980px;
