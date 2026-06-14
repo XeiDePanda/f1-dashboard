@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <a class="brand" href="index.html">DASHBAORD</a>
+    <a class="brand" href="index.html">DASHBOARD</a>
     <nav class="nav-links">
       <a href="index.html">Home</a>
       <a class="active" href="standings.html">Standings</a>
@@ -19,18 +19,19 @@
     </nav>
   </header>
   <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Standings</p>
-        <h1 class="hero-title">Driver Standings</h1>
-        <p class="hero-subtitle">Review the current driver rankings for the active season, sourced from the live F1 API.</p>
-      </div>
-      <div class="hero-card">
-        <p class="sm-label">Standings overview</p>
-        <p class="hero-season-note">Scores update when the page loads.</p>
-        <div class="button-group">
-          <button id="refresh-standings" class="refresh-btn">Refresh</button>
+    <section class="hero hero--standings">
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">Standings</p>
+          <h1 class="hero-title">Driver Standings</h1>
         </div>
+        <p class="hero-meta">Live data via Jolpica F1 API • Last updated: Just now</p>
+      </div>
+      <div class="hero-actions">
+        <button id="refresh-standings" class="refresh-btn refresh-btn--minimal" type="button">
+          <svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35a7.95 7.95 0 0 0-11.3 0 8 8 0 0 0 0 11.3 8 8 0 0 0 11.3 0l1.45 1.45v-5h-5l1.45 1.45a6 6 0 0 1-8.48 0 6 6 0 0 1 0-8.48 6 6 0 0 1 8.48 0l.77.78 1.42-1.42-.77-.78z" fill="currentColor"/></svg>
+          <span>Refresh</span>
+        </button>
       </div>
     </section>
 

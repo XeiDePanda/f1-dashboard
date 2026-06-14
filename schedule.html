@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <a class="brand" href="index.html">DASHBAORD</a>
+    <a class="brand" href="index.html">DASHBOARD</a>
     <nav class="nav-links">
       <a href="index.html">Home</a>
       <a href="standings.html">Standings</a>
@@ -20,18 +20,19 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Calendar</p>
-        <h1 class="hero-title">Race Schedule</h1>
-        <p class="hero-subtitle">Browse all races for the 2026 F1 season. Completed races are marked in green, upcoming races in red.</p>
-      </div>
-      <div class="hero-card">
-        <p class="sm-label">Season overview</p>
-        <p class="hero-season-note">24 races scheduled for the season.</p>
-        <div class="button-group">
-          <button id="refresh-schedule" class="refresh-btn">Refresh</button>
+    <section class="hero hero--section">
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">Calendar</p>
+          <h1 class="hero-title">Race Schedule</h1>
         </div>
+        <p class="hero-meta">Compact schedule view for the full 2026 season.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="refresh-schedule" class="refresh-btn refresh-btn--minimal" type="button">
+          <svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35a7.95 7.95 0 0 0-11.3 0 8 8 0 0 0 0 11.3 8 8 0 0 0 11.3 0l1.45 1.45v-5h-5l1.45 1.45a6 6 0 0 1-8.48 0 6 6 0 0 1 0-8.48 6 6 0 0 1 8.48 0l.77.78 1.42-1.42-.77-.78z" fill="currentColor"/></svg>
+          <span>Refresh</span>
+        </button>
       </div>
     </section>
 
@@ -102,7 +103,9 @@
             nextRaceHtml = '<span class="next-race-label">Next Race</span>';
           }
 
-          card.innerHTML = `
+          const content = document.createElement('div');
+          content.classList.add('race-card-content');
+          content.innerHTML = `
             ${nextRaceHtml}
             <p class="race-round">Round ${race.round}</p>
             <h3 class="race-card-name">${race.raceName}</h3>
@@ -120,8 +123,10 @@
             img.alt = race.Circuit.circuitName;
             img.onerror = () => { mapDiv.style.display = 'none'; };
             mapDiv.appendChild(img);
-            card.insertBefore(mapDiv, card.firstChild);
+            card.appendChild(mapDiv);
           }
+
+          card.appendChild(content);
 
           grid.appendChild(card);
         });

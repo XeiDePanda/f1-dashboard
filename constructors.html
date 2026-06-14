@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <a class="brand" href="index.html">DASHBAORD</a>
+    <a class="brand" href="index.html">DASHBOARD</a>
     <nav class="nav-links">
       <a href="index.html">Home</a>
       <a href="standings.html">Standings</a>
@@ -20,18 +20,19 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Constructors</p>
-        <h1 class="hero-title">Constructor Standings</h1>
-        <p class="hero-subtitle">View the current constructor rankings and team performance for the active F1 season.</p>
-      </div>
-      <div class="hero-card">
-        <p class="sm-label">Team ranking</p>
-        <p class="hero-season-note">Constructor standings refresh each page load.</p>
-        <div class="button-group">
-          <button id="refresh-constructors" class="refresh-btn">Refresh</button>
+    <section class="hero hero--section">
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">Constructors</p>
+          <h1 class="hero-title">Constructor Standings</h1>
         </div>
+        <p class="hero-meta">Official constructor ranking pulled live from the API.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="refresh-constructors" class="refresh-btn refresh-btn--minimal" type="button">
+          <svg class="refresh-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35a7.95 7.95 0 0 0-11.3 0 8 8 0 0 0 0 11.3 8 8 0 0 0 11.3 0l1.45 1.45v-5h-5l1.45 1.45a6 6 0 0 1-8.48 0 6 6 0 0 1 0-8.48 6 6 0 0 1 8.48 0l.77.78 1.42-1.42-.77-.78z" fill="currentColor"/></svg>
+          <span>Refresh</span>
+        </button>
       </div>
     </section>
 
